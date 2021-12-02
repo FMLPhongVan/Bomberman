@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane id="inGamePane" fx:id="inGamePane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="576.0" prefWidth="864.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.phongvan.bomberman.gui.InGameController">
+   <children>
+      <Canvas fx:id="gameBoard" height="496.0" onKeyPressed="#onPlayerPressed" onKeyReleased="#onPlayerReleased" width="496.0" AnchorPane.bottomAnchor="48.0" AnchorPane.rightAnchor="48.0" AnchorPane.topAnchor="48.0" />
+   </children>
+</AnchorPane>

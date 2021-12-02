@@ -1,33 +1,50 @@
 package com.phongvan.bomberman;
 
-import javafx.animation.AnimationTimer;
+import com.phongvan.bomberman.gui.PaneController;
 import javafx.application.Application;
-import javafx.scene.Group;
+import javafx.fxml.FXMLLoader;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 
 public class Bomberman extends Application {
-    public static final int WIDTH = 600;
-    public static final int HEIGHT = 400;
-
-    private GraphicsContext graphicsContext;
+    private static Stage stage;
 
     @Override
     public void start(Stage stage) throws IOException {
-        Canvas canvas = new Canvas(HEIGHT, WIDTH);
-        graphicsContext = canvas.getGraphicsContext2D();
+        Bomberman.stage = stage;
+        FXMLLoader fxmlLoader = new FXMLLoader(Bomberman.class.getResource("gui/app.fxml"));
+        Scene scene = new Scene(fxmlLoader.load(),
+                PaneController.DEFAULT_APP_WIDTH * PaneController.DEFAULT_APP_SCALE_SIZE,
+                PaneController.DEFAULT_APP_HEIGHT * PaneController.DEFAULT_APP_SCALE_SIZE);
 
-        Group root = new Group();
-        root.getChildren().add(canvas);
+        Logger.log(Logger.INFO, "Bomberman", "Starting game");
 
-        Scene scene = new Scene(root);
+        Bomberman.stage.setOnCloseRequest(e -> {
+            System.exit(0);
+        });
 
-        stage.setScene(scene);
-        stage.show();
+        Bomberman.stage.setResizable(false);
+        Bomberman.stage.setTitle("Super Bomberman");
+        Bomberman.stage.setScene(scene);
+        Bomberman.stage.show();
+    }
+
+    public static void changeSize() throws IOException {
+        double newWidth = PaneController.DEFAULT_APP_WIDTH * PaneController.getInstance().getScaleSize();
+        double newHeight = PaneController.DEFAULT_APP_HEIGHT * PaneController.getInstance().getScaleSize();
+
+        stage.setWidth(newWidth);
+        stage.setHeight(newHeight);
+
+        Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+        stage.setX((screenBounds.getWidth() - stage.getWidth()) / 2);
+        stage.setY((screenBounds.getHeight() - stage.getHeight()) / 2);
+
+        Logger.log(Logger.INFO, "Bomberman", "Current size of Game is : " + newWidth + "x" + newHeight);
     }
 
     public static void main(String[] args) {
