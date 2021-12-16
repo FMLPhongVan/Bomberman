@@ -56,4 +56,8 @@ public class Node {
     public int getY() {
         return y;
     }
+
+    public String toString() {
+        return String.format("x=%d, y=%d, g=%f, h=%f, f=%f", x, y, gCost, hCost, fCost);
+    }
 }

@@ -1,23 +1,15 @@
 package com.phongvan.bomberman.map;
 
-import com.phongvan.bomberman.Bomberman;
 import com.phongvan.bomberman.Core;
-import com.phongvan.bomberman.Logger;
 import com.phongvan.bomberman.entities.Entities;
 import com.phongvan.bomberman.entities.mobs.Ballooms;
 import com.phongvan.bomberman.entities.destructible.Brick;
-import com.phongvan.bomberman.entities.destructible.Portal;
 import com.phongvan.bomberman.entities.indestructible.Grass;
 import com.phongvan.bomberman.entities.indestructible.Wall;
 import com.phongvan.bomberman.entities.mobs.*;
-import com.phongvan.bomberman.entities.powerups.Bombs;
-import com.phongvan.bomberman.entities.powerups.Flames;
+import com.phongvan.bomberman.entities.powerups.*;
 import com.phongvan.bomberman.gui.PaneController;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.*;
 
 public class MapHandler {
@@ -27,22 +19,31 @@ public class MapHandler {
     private int cols;
     private int portalX;
     private int portalY;
-    private Character[][] map;
+    private int[][] map;
 
-    private static final int[] dh = {-1, 0, 1,  0};
-    private static final int[] dc = { 0, 1, 0, -1};
+    public static final int[] dh = {-1, 0, 1,  0};
+    public static final int[] dc = { 0, 1, 0, -1};
 
     public static final int DEFAULT_TILE_SIZE = 16;
 
-    public static final Character GRASS_TILE = ' ';
-    public static final Character WALL_TILE = '#';
-    public static final Character BRICKS_TILE = '*';
-    public static final Character PORTAL_TILE = 'x';
-    public static final Character BOMBERMAN_TILE = 'p';
-    public static final Character BALLOOM_TILE = '1';
-    public static final Character ONEAL_TILE = '2';
-    public static final Character BOMB_TILE = 'b';
-    public static final Character FLAME_TILE = 'f';
+    public static final int GRASS_TILE = 7;
+    public static final int WALL_TILE = 6;
+    public static final int BRICKS_TILE = 8;
+    public static final int PORTAL_TILE = 5;
+    public static final int BOMBERMAN_TILE = 2;
+    public static final int BALLOOM_TILE = 26;
+    public static final int ONEAL_TILE = 12;
+    public static final int DOLL_TILE = 14;
+    public static final int MINVO_TILE = 105;
+    public static final int KONDORIA_TILE = 91;
+    public static final int OVAPI_TILE = 87;
+    public static final int PASS_TILE = 101;
+    public static final int PONTAN_TILE = 93;
+    public static final int BOMB_TILE = 161;
+    public static final int FLAME_TILE = 162;
+    public static final int SPEED_TILE = 163;
+    public static final int WALL_PASS_TILE = 164;
+    public static final int DETONATOR_TILE = 165;
 
     private MapHandler() {}
 
@@ -55,38 +56,14 @@ public class MapHandler {
     }
 
     public void loadMap(int level) {
-        try {
-            InputStream input = Bomberman.class.getResourceAsStream("levels/level " + level + ".txt");
-            assert input != null;
-            BufferedReader reader = new BufferedReader(new InputStreamReader(input, "UTF-8"));
+        String[] data = XMLConverter.getXMLData(level);
+        map = new int[rows][cols];
 
-            String data;
-            data = reader.readLine();
-            level = Integer.parseInt(data);
-
-            data = reader.readLine();
-            rows = Integer.parseInt(data);
-
-            data = reader.readLine();
-            cols = Integer.parseInt(data);
-
-            map = new Character[rows][cols];
-
-            int curRows = 0;
-            while ((data = reader.readLine()) != null) {
-                for (int i = 0; i < data.length(); ++i) {
-                    map[curRows][i] = data.charAt(i);
-                }
-
-                ++curRows;
+        for (int i = 1; i < data.length; ++i) {
+            String[] line = data[i].split(",");
+            for (int j = 0; j < cols; ++j) {
+                map[i - 1][j] = Integer.parseInt(line[j]);
             }
-
-            reader.close();
-
-        } catch (IOException | NullPointerException e) {
-            Logger.log(Logger.ERROR, "MapHandler", e.getMessage());
-            e.printStackTrace();
-            System.exit(0);
         }
     }
 
@@ -113,12 +90,48 @@ public class MapHandler {
                         Core.getInstance().addNewPowerUps(new Bombs(j, i));
                         Core.getInstance().addNewTile(new Brick(j, i));
                         map[i][j] = BRICKS_TILE;
+                    } else if (map[i][j] == SPEED_TILE) {
+                        Core.getInstance().addNewPowerUps(new Speed(j, i));
+                        Core.getInstance().addNewTile(new Brick(j, i));
+                        map[i][j] = BRICKS_TILE;
+                    } else if (map[i][j] == DETONATOR_TILE) {
+                        Core.getInstance().addNewPowerUps(new Detonator(j, i));
+                        Core.getInstance().addNewTile(new Brick(j, i));
+                        map[i][j] = BRICKS_TILE;
+                    } else if (map[i][j] == WALL_PASS_TILE) {
+                        Core.getInstance().addNewPowerUps(new WallPass(j, i));
+                        Core.getInstance().addNewTile(new Brick(j, i));
+                        map[i][j] = BRICKS_TILE;
                     } else if (map[i][j] == BALLOOM_TILE) {
                         Core.getInstance().addNewMob(new Ballooms(j, i, null));
                         Core.getInstance().addNewTile(new Grass(j, i));
                         map[i][j] = GRASS_TILE;
                     } else if (map[i][j] == ONEAL_TILE) {
                         Core.getInstance().addNewMob(new Oneal(j, i, null));
+                        Core.getInstance().addNewTile(new Grass(j, i));
+                        map[i][j] = GRASS_TILE;
+                    } else if (map[i][j] == DOLL_TILE) {
+                        Core.getInstance().addNewMob(new Doll(j, i, null));
+                        Core.getInstance().addNewTile(new Grass(j, i));
+                        map[i][j] = GRASS_TILE;
+                    } else if (map[i][j] == MINVO_TILE) {
+                        Core.getInstance().addNewMob(new Minvo(j, i, null));
+                        Core.getInstance().addNewTile(new Grass(j, i));
+                        map[i][j] = GRASS_TILE;
+                    } else if (map[i][j] == KONDORIA_TILE) {
+                        Core.getInstance().addNewMob(new Kondoria(j, i, null));
+                        Core.getInstance().addNewTile(new Grass(j, i));
+                        map[i][j] = GRASS_TILE;
+                    } else if (map[i][j] == OVAPI_TILE) {
+                        Core.getInstance().addNewMob(new Ovapi(j, i, null));
+                        Core.getInstance().addNewTile(new Grass(j, i));
+                        map[i][j] = GRASS_TILE;
+                    } else if (map[i][j] == PASS_TILE) {
+                        Core.getInstance().addNewMob(new Pass(j, i, null));
+                        Core.getInstance().addNewTile(new Grass(j, i));
+                        map[i][j] = GRASS_TILE;
+                    } else if (map[i][j] == PONTAN_TILE) {
+                        Core.getInstance().addNewMob(new Pontan(j, i, null));
                         Core.getInstance().addNewTile(new Grass(j, i));
                         map[i][j] = GRASS_TILE;
                     } else {
@@ -152,7 +165,8 @@ public class MapHandler {
         return countPossibleWays(tileX, tileY) == 4;
     }
 
-    private boolean checkTileCollision(double thisX, double thisY, double otherX, double otherY, boolean isBomber) {
+    private boolean checkTileCollision(double thisX, double thisY, double otherX, double otherY,
+                                       boolean wallPass, boolean bombPass, boolean isBomber) {
         double rightA = thisX + getTileSize();
         double bottomA = thisY + getTileSize();
 
@@ -162,8 +176,9 @@ public class MapHandler {
         int tileX = (int) (otherX / getTileSize());
         int tileY = (int) (otherY / getTileSize());
 
-        if (map[tileY][tileX] == WALL_TILE || map[tileY][tileX] == BRICKS_TILE
-        || (Core.getInstance().thisTileHadBomb(tileX, tileY) && (isBomber && !Core.getInstance().getPlayer().isStepOnBomb()))) {
+        if (map[tileY][tileX] == WALL_TILE || (map[tileY][tileX] == BRICKS_TILE && !wallPass)
+        || (Core.getInstance().thisTileHadBomb(tileX, tileY) && (isBomber && !Core.getInstance().getPlayer().isStepOnBomb()))
+        || (Core.getInstance().thisTileHadBomb(tileX, tileY) && (!isBomber && !bombPass))) {
             if (bottomA <= otherY) {
                 return false;
             }
@@ -192,17 +207,18 @@ public class MapHandler {
      * @param isBomber Special check if the mob is the bomber.
      * @return
      */
-    public boolean canMoveTo(int newDirection, double x, double y, boolean isBomber) {
+    public boolean canMoveTo(int newDirection, double x, double y, boolean wallPass, boolean bombPass, boolean isBomber) {
         int tileX = (int) (x + getTileSize() / 2) / getTileSize();
         int tileY = (int) (y + getTileSize() / 2) / getTileSize();
 
         if (Core.getInstance().thisTileHadBomb(tileX, tileY)) {
-            if (!isBomber || (isBomber && !Core.getInstance().getPlayer().isStepOnBomb())) {
+            if ((!isBomber && !bombPass) || (isBomber && !Core.getInstance().getPlayer().isStepOnBomb())) {
                 return false;
             }
         }
 
-        if (map[tileY][tileX] == GRASS_TILE || map[tileY][tileX] == PORTAL_TILE) {
+        if (map[tileY][tileX] == GRASS_TILE || map[tileY][tileX] == PORTAL_TILE
+                || (map[tileY][tileX] == BRICKS_TILE && wallPass)) {
             switch (newDirection) {
                 case Mob.UP_DIR -> --tileY;
                 case Mob.RIGHT_DIR -> ++tileX;
@@ -210,13 +226,14 @@ public class MapHandler {
                 case Mob.LEFT_DIR -> --tileX;
             }
 
-            return !checkTileCollision(x, y, tileX * getTileSize(), tileY * getTileSize(), isBomber);
+            return !checkTileCollision(x, y, tileX * getTileSize(), tileY * getTileSize(),
+                                        wallPass, bombPass, isBomber);
         }
 
         return false;
     }
 
-    public boolean canTurn(int tileX, int tileY, int newDirection) {
+    public boolean canTurn(int tileX, int tileY, int newDirection, boolean wallPass) {
         switch (newDirection) {
             case Mob.UP_DIR -> --tileY;
             case Mob.RIGHT_DIR -> ++tileX;
@@ -224,14 +241,23 @@ public class MapHandler {
             case Mob.LEFT_DIR -> --tileX;
         }
 
-        return (map[tileY][tileX] == GRASS_TILE || map[tileY][tileX] == PORTAL_TILE);
+        return (map[tileY][tileX] == GRASS_TILE || map[tileY][tileX] == PORTAL_TILE
+                || (map[tileY][tileX] == BRICKS_TILE && wallPass));
     }
 
     public synchronized void findShortestPath(Mob start, Entities end) {
         Set<Node> queue = new TreeSet<>(new Comparator<Node>() {
             @Override
             public int compare(Node o1, Node o2) {
-                return Double.compare(o1.getfCost(), o2.getfCost());
+                int value = Double.compare(o1.getfCost(), o2.getfCost());
+                if (value == 0) {
+                    if (o1.getX() == o2.getX() && o1.getY() == o2.getY() && o1.getgCost() == o2.getgCost()) {
+                        return Double.compare(o1.gethCost(), o2.gethCost());
+                    }
+                    else return -1;
+                }
+
+                return value;
             }
         });
         double[][] visited = new double[rows][cols];
@@ -258,7 +284,7 @@ public class MapHandler {
 
         while (!queue.isEmpty()) {
             current = queue.iterator().next();
-            System.out.println(current.getX() + " " + current.getY());
+            //System.out.println(current.getX() + " " + current.getY());
             if (current.isTargetNode(endTileX, endTileY)) {
                 while (current.getParent() != null) {
                     if (current.getParent().getParent() == null) {
@@ -283,8 +309,12 @@ public class MapHandler {
             for (int dir = 0; dir < 4; ++dir) {
                 tileX = current.getX() + dc[dir];
                 tileY = current.getY() + dh[dir];
-                if (tileX < 1 || tileY < 1 || tileX > cols || tileY > rows) continue;
-                if (map[tileY][tileX] == WALL_TILE || map[tileY][tileX] == BRICKS_TILE) continue;
+                if (tileX < 1 || tileY < 1 || tileX > cols || tileY > rows
+                        || map[tileY][tileX] == WALL_TILE || (map[tileY][tileX] == BRICKS_TILE && !start.canWallPass())
+                        || (Core.getInstance().thisTileHadBomb(tileX, tileY) && !start.canBombPass())) {
+                    continue;
+                }
+                //System.out.println(dir + " " + tileX + " " + tileY);
                 gCost = current.getgCost() + 1;
                 hCost = getManhattanDistance(tileX, tileY, endTileX, endTileY);
                 fCost = gCost + hCost;
@@ -323,11 +353,11 @@ public class MapHandler {
         return DEFAULT_TILE_SIZE * PaneController.getInstance().getScaleSize();
     }
 
-    public void setTile(int tileX, int tileY, Character tileType) {
+    public void setTile(int tileX, int tileY, int tileType) {
         map[tileY][tileX] = tileType;
     }
 
-    public Character getTileType(int tileX, int tileY) {
+    public int getTileType(int tileX, int tileY) {
         return map[tileY][tileX];
     }
 
@@ -335,7 +365,23 @@ public class MapHandler {
         return tileX == portalY && tileY == portalX;
     }
 
-    private int getManhattanDistance(int startTileX, int startTileY, int endTileX, int endTileY) {
+    public int getPortalX() {
+        return portalX;
+    }
+
+    public int getPortalY() {
+        return portalY;
+    }
+
+    public int getManhattanDistance(int startTileX, int startTileY, int endTileX, int endTileY) {
         return Math.abs(startTileX - endTileX) + Math.abs(startTileY - endTileY);
+    }
+
+    public void setRows(int rows) {
+        this.rows = rows;
+    }
+
+    public void setCols(int cols) {
+        this.cols = cols;
     }
 }

@@ -15,6 +15,8 @@ public abstract class Mob extends AnimatedEntities {
     protected double targetY;
     protected int direction;
     protected int point;
+    protected boolean wallPass;
+    protected boolean bombPass;
     protected Random rand = new Random();
 
     public static final int UNSET = -1;
@@ -32,6 +34,28 @@ public abstract class Mob extends AnimatedEntities {
         targetY = UNSET;
         direction = UNSET;
         point = 0;
+        wallPass = false;
+        bombPass = false;
+    }
+
+    /**
+     * This method adjusts x, y if mob's velocity is 1.5.
+     */
+    public void adjustFixedPosition() {
+        if (velocity != 1.5) return;
+
+        int tileSize = MapHandler.getInstance().getTileSize();
+        int scale = PaneController.getInstance().getScaleSize();
+        int tileX = (int) ((x + (double) tileSize / 2) / tileSize);
+        int tileY = (int) ((y + (double) tileSize / 2) / tileSize);
+
+        if (Math.abs(x / (1.0 * scale) - tileX * 16.0) <= 1) {
+            x = tileSize * tileX;
+        }
+
+        if (Math.abs(y / (1.0 * scale) - tileY * 16.0) <= 1) {
+            y = tileSize * tileY;
+        }
     }
 
     public void move(boolean isBomber) {
@@ -44,7 +68,7 @@ public abstract class Mob extends AnimatedEntities {
             case LEFT_DIR -> velX = (-velocity) * PaneController.getInstance().getScaleSize();
         }
 
-        if (MapHandler.getInstance().canMoveTo(direction, x + velX, y + velY, isBomber)) {
+        if (MapHandler.getInstance().canMoveTo(direction, x + velX, y + velY, wallPass, bombPass, isBomber)) {
             x += velX;
             y += velY;
         } else {
@@ -55,6 +79,7 @@ public abstract class Mob extends AnimatedEntities {
     }
 
     public void makeRandomMove() {
+        velX = velY = 0;
         switch (direction) {
             case UP_DIR -> velY = (-velocity) * PaneController.getInstance().getScaleSize();
             case RIGHT_DIR -> velX = velocity * PaneController.getInstance().getScaleSize();
@@ -63,10 +88,13 @@ public abstract class Mob extends AnimatedEntities {
         }
 
         int tileSize = MapHandler.getInstance().getTileSize();
-        int tileX, tileY;
-        if (MapHandler.getInstance().canMoveTo(direction, x + velX, y + velY, false)) {
+        int tileX = (int) ((x + (double) tileSize / 2) / tileSize);
+        int tileY = (int) ((y + (double) tileSize / 2) / tileSize);
+
+        if (MapHandler.getInstance().canMoveTo(direction, x + velX, y + velY, wallPass, bombPass, false)) {
             x += velX;
             y += velY;
+            adjustFixedPosition();
 
             if (x % tileSize == 0 && y % tileSize == 0) {
                 tileX = (int) (x / tileSize);
@@ -79,13 +107,15 @@ public abstract class Mob extends AnimatedEntities {
                 }
             }
         } else {
+            adjustFixedPosition();
+
             if (x % tileSize == 0 && y % tileSize == 0) {
                 tileX = (int) (x / tileSize);
                 tileY = (int) (y / tileSize);
                 if (MapHandler.getInstance().countPossibleWays(tileX, tileY) > 1) {
                     direction = (direction + 1) % TOTAL_DIR;
-                    boolean way1 = MapHandler.getInstance().canTurn(tileX, tileY, direction);
-                    boolean way2 = MapHandler.getInstance().canTurn(tileX, tileY, (direction + 2) % TOTAL_DIR);
+                    boolean way1 = MapHandler.getInstance().canTurn(tileX, tileY, direction, wallPass);
+                    boolean way2 = MapHandler.getInstance().canTurn(tileX, tileY, (direction + 2) % TOTAL_DIR, wallPass);
                     int random;
                     if (way1 && way2) {
                         random = rand.nextInt(3);
@@ -116,7 +146,16 @@ public abstract class Mob extends AnimatedEntities {
         }
     }
 
-    public void setVelocity(int velocity) {
+    public int getManhattanDistance(Mob other) {
+        int tileSize = MapHandler.getInstance().getTileSize();
+        int tileX = (int) (x + tileSize / 2) / tileSize;
+        int tileY = (int) (y + tileSize / 2) / tileSize;
+        int otherTileX = (int) (other.x + tileSize / 2) / tileSize;
+        int otherTileY = (int) (other.y + tileSize / 2) / tileSize;
+        return Math.abs(tileX - otherTileX) + Math.abs(tileY - otherTileY);
+    }
+
+    public void setVelocity(double velocity) {
         this.velocity = velocity;
     }
 
@@ -150,6 +189,10 @@ public abstract class Mob extends AnimatedEntities {
         this.targetY = targetY;
     }
 
+    public void setWallPass(boolean state) {
+        wallPass = state;
+    }
+
     public double getVelocity() {
         return velocity;
     }
@@ -174,7 +217,20 @@ public abstract class Mob extends AnimatedEntities {
         return velY;
     }
 
+    public int getPoint() {
+        return point;
+    }
+
+    public boolean canWallPass() {
+        return wallPass;
+    }
+
+    public boolean canBombPass() {
+        return bombPass;
+    }
+
     public abstract void update();
 
     public abstract void kill();
+
 }

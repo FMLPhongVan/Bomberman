@@ -10,7 +10,6 @@
             fx:controller="com.phongvan.bomberman.gui.PaneController">
 
    <fx:include source="menu-pane.fxml"/>
-   <fx:include source="pause-pane.fxml"/>
    <fx:include source="in-game-pane.fxml"/>
 
 </AnchorPane>

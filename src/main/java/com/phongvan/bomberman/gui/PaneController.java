@@ -1,7 +1,9 @@
 package com.phongvan.bomberman.gui;
 
 import com.phongvan.bomberman.Bomberman;
+import com.phongvan.bomberman.HighScoreManager;
 import com.phongvan.bomberman.Logger;
+import com.phongvan.bomberman.SoundHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
@@ -18,7 +20,7 @@ public class PaneController implements Initializable {
     private AnchorPane root;
     private int scaleSize = 2;
 
-    public static final int DEFAULT_APP_WIDTH = 432,
+    public static final int DEFAULT_APP_WIDTH = 512,
                             DEFAULT_APP_HEIGHT = 288;
     public static final int DEFAULT_APP_SCALE_SIZE = 2;
 
@@ -32,6 +34,8 @@ public class PaneController implements Initializable {
         root.setPrefWidth(DEFAULT_APP_WIDTH * DEFAULT_APP_SCALE_SIZE);
         root.setPrefHeight(DEFAULT_APP_HEIGHT * DEFAULT_APP_SCALE_SIZE);
         switchPane(MENU_PANE_ID);
+        SoundHandler.getInstance().addMedia(SoundHandler.STAGE_TITLE_SCREEN, true);
+        HighScoreManager.getInstance().loadSavedScores();
     }
 
     public static PaneController getInstance() {

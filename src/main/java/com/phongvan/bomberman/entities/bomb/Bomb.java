@@ -2,8 +2,8 @@ package com.phongvan.bomberman.entities.bomb;
 
 import com.phongvan.bomberman.Camera;
 import com.phongvan.bomberman.Core;
+import com.phongvan.bomberman.SoundHandler;
 import com.phongvan.bomberman.entities.AnimatedEntities;
-import com.phongvan.bomberman.entities.destructible.Brick;
 import com.phongvan.bomberman.entities.mobs.Bomber;
 import com.phongvan.bomberman.graphics.SpriteHandler;
 import com.phongvan.bomberman.map.MapHandler;
@@ -16,11 +16,13 @@ public class Bomb extends AnimatedEntities {
     private int flameLength = 1;
     private int time = 120; // 2 second until explode.
     private List<Explosion> explosions = new ArrayList<>();
+    private Bomber bomber;
 
-    public Bomb(int x, int y, int flameLength) {
+    public Bomb(Bomber bomber, int x, int y, int flameLength) {
         super(x, y, null);
         this.flameLength = flameLength;
         time = 120;
+        this.bomber = bomber;
     }
 
     public void render(GraphicsContext gc) {
@@ -39,41 +41,43 @@ public class Bomb extends AnimatedEntities {
         int centerTileX = (int) (x / tileSize);
         int centerTileY = (int) (y / tileSize);
 
-        explosions.add(new Explosion(centerTileX, centerTileY, Explosion.CENTER));
+        explosions.add(new Explosion(bomber, centerTileX, centerTileY, Explosion.CENTER));
+        if (MapHandler.getInstance().getTileType(centerTileX, centerTileY) == MapHandler.BRICKS_TILE) {
+            Core.getInstance().getTile(centerTileX, centerTileY).setAlive(false);
+        }
+
         for (int d = 1; d <= flameLength; ++d) {
-            Character tile = MapHandler.getInstance().getTileType(centerTileX + d, centerTileY);
+            int tile = MapHandler.getInstance().getTileType(centerTileX + d, centerTileY);
             if (tile == MapHandler.WALL_TILE) {
                 break;
             } else if (tile == MapHandler.BRICKS_TILE) {
-                System.out.println(1);
                 Core.getInstance().getTile(centerTileX + d, centerTileY).setAlive(false);
                 break;
             }
             if (d < flameLength) {
-                explosions.add(new Explosion(centerTileX + d, centerTileY, Explosion.MIDDLE_HORIZONTAL));
+                explosions.add(new Explosion(bomber,centerTileX + d, centerTileY, Explosion.MIDDLE_HORIZONTAL));
             } else {
-                explosions.add(new Explosion(centerTileX + d, centerTileY, Explosion.HEAD_RIGHT));
+                explosions.add(new Explosion(bomber,centerTileX + d, centerTileY, Explosion.HEAD_RIGHT));
             }
         }
 
         for (int d = 1; d <= flameLength; ++d) {
-            Character tile = MapHandler.getInstance().getTileType(centerTileX - d, centerTileY);
+            int tile = MapHandler.getInstance().getTileType(centerTileX - d, centerTileY);
             if (tile == MapHandler.WALL_TILE) {
                 break;
             } else if (tile == MapHandler.BRICKS_TILE) {
-                System.out.println(1);
                 Core.getInstance().getTile(centerTileX - d, centerTileY).setAlive(false);
                 break;
             }
             if (d < flameLength) {
-                explosions.add(new Explosion(centerTileX - d, centerTileY, Explosion.MIDDLE_HORIZONTAL));
+                explosions.add(new Explosion(bomber,centerTileX - d, centerTileY, Explosion.MIDDLE_HORIZONTAL));
             } else {
-                explosions.add(new Explosion(centerTileX - d, centerTileY, Explosion.HEAD_LEFT));
+                explosions.add(new Explosion(bomber,centerTileX - d, centerTileY, Explosion.HEAD_LEFT));
             }
         }
 
         for (int d = 1; d <= flameLength; ++d) {
-            Character tile = MapHandler.getInstance().getTileType(centerTileX, centerTileY + d);
+            int tile = MapHandler.getInstance().getTileType(centerTileX, centerTileY + d);
             if (tile == MapHandler.WALL_TILE) {
                 break;
             } else if (tile == MapHandler.BRICKS_TILE) {
@@ -81,28 +85,26 @@ public class Bomb extends AnimatedEntities {
                 break;
             }
             if (d < flameLength) {
-                explosions.add(new Explosion(centerTileX, centerTileY + d, Explosion.MIDDLE_VERTICAL));
+                explosions.add(new Explosion(bomber, centerTileX, centerTileY + d, Explosion.MIDDLE_VERTICAL));
             } else {
-                explosions.add(new Explosion(centerTileX, centerTileY + d, Explosion.HEAD_DOWN));
+                explosions.add(new Explosion(bomber, centerTileX, centerTileY + d, Explosion.HEAD_DOWN));
             }
         }
 
         for (int d = 1; d <= flameLength; ++d) {
-            Character tile = MapHandler.getInstance().getTileType(centerTileX, centerTileY - d);
+            int tile = MapHandler.getInstance().getTileType(centerTileX, centerTileY - d);
             if (tile == MapHandler.WALL_TILE) {
                 break;
             } else if (tile == MapHandler.BRICKS_TILE) {
-                System.out.println(1);
                 Core.getInstance().getTile(centerTileX, centerTileY - d).setAlive(false);
                 break;
             }
             if (d < flameLength) {
-                explosions.add(new Explosion(centerTileX, centerTileY - d, Explosion.MIDDLE_VERTICAL));
+                explosions.add(new Explosion(bomber, centerTileX, centerTileY - d, Explosion.MIDDLE_VERTICAL));
             } else {
-                explosions.add(new Explosion(centerTileX, centerTileY - d, Explosion.HEAD_UP));
+                explosions.add(new Explosion(bomber, centerTileX, centerTileY - d, Explosion.HEAD_UP));
             }
         }
-
     }
 
     public void update() {
@@ -113,6 +115,7 @@ public class Bomb extends AnimatedEntities {
         if (time == 0) {
             if (explosions.isEmpty()) {
                 createExplosionRange();
+                SoundHandler.getInstance().addMedia(SoundHandler.EFFECT_EXPLOSION, false);
             } else {
                 for (Explosion explosion : explosions) {
                     explosion.update();
@@ -155,5 +158,13 @@ public class Bomb extends AnimatedEntities {
 
     public int getTime() {
         return time;
+    }
+
+    public int getFlameLength() {
+        return flameLength;
+    }
+
+    public List<Explosion> getExplosions() {
+        return explosions;
     }
 }

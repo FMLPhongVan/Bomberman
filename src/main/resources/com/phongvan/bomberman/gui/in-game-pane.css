@@ -1,0 +1,15 @@
+#levelInfoPane {
+    -fx-background-color: rgba(232, 230, 235, 0.75);
+    -fx-border-radius: 5px;
+    -fx-background-radius: 15px;
+}
+
+#pausePane, #gameOverPane, #highScorePane {
+    -fx-background-color: rgba(0, 0, 0, 0.75);
+}
+
+#pauseMenu, #gameOverMenu, #highScoreMenu {
+    -fx-background-color: rgba(232, 230, 235, 0.75);
+    -fx-border-radius: 5px;
+    -fx-background-radius: 15px;
+}

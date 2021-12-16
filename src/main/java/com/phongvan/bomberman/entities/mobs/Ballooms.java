@@ -2,6 +2,7 @@ package com.phongvan.bomberman.entities.mobs;
 
 import com.phongvan.bomberman.Camera;
 import com.phongvan.bomberman.Core;
+import com.phongvan.bomberman.SoundHandler;
 import com.phongvan.bomberman.graphics.SpriteHandler;
 import com.phongvan.bomberman.gui.PaneController;
 import com.phongvan.bomberman.map.MapHandler;
@@ -22,6 +23,7 @@ public class Ballooms extends Mob {
         velX = velY = 0;
         if (isAlive) {
             makeRandomMove();
+            Core.getInstance().checkCollideBomber(this);
         }
 
         animate();
@@ -42,6 +44,7 @@ public class Ballooms extends Mob {
     public void kill() {
         isAlive = false;
         curFrame = 0;
+        SoundHandler.getInstance().addMedia(SoundHandler.EFFECT_DEATH, false);
     }
 
     @Override

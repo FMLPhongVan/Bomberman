@@ -2,7 +2,7 @@ module com.phongvan.bomberman {
     requires javafx.controls;
     requires javafx.fxml;
     requires javafx.web;
-
+    requires javafx.media;
     requires org.controlsfx.controls;
     requires com.dlsc.formsfx;
     requires validatorfx;
@@ -31,4 +31,7 @@ module com.phongvan.bomberman {
 
     exports com.phongvan.bomberman.entities.powerups;
     opens com.phongvan.bomberman.entities.powerups to javafx.fxml;
+
+    exports com.phongvan.bomberman.AI;
+    opens com.phongvan.bomberman.AI to javafx.fxml;
 }

@@ -3,12 +3,14 @@ package com.phongvan.bomberman.entities.bomb;
 import com.phongvan.bomberman.Camera;
 import com.phongvan.bomberman.Core;
 import com.phongvan.bomberman.entities.AnimatedEntities;
+import com.phongvan.bomberman.entities.mobs.Bomber;
 import com.phongvan.bomberman.graphics.SpriteHandler;
 import com.phongvan.bomberman.map.MapHandler;
 import javafx.scene.canvas.GraphicsContext;
 
 public class Explosion extends AnimatedEntities {
     private int type;
+    private Bomber bomber;
 
     public static final int CENTER = 0;
     public static final int MIDDLE_HORIZONTAL = 1;
@@ -18,12 +20,13 @@ public class Explosion extends AnimatedEntities {
     public static final int HEAD_RIGHT = 5;
     public static final int HEAD_LEFT = 6;
 
-    public Explosion(double x, double y, int type) {
+    public Explosion(Bomber bomber, double x, double y, int type) {
         super(x, y);
         this.type = type;
         setX(x * MapHandler.getInstance().getTileSize());
         setY(y * MapHandler.getInstance().getTileSize());
         isAlive = true;
+        this.bomber = bomber;
     }
 
     @Override
@@ -59,5 +62,9 @@ public class Explosion extends AnimatedEntities {
             case HEAD_DOWN -> gc.drawImage(SpriteHandler.getInstance().explodeHeadDown[id].getImage(), renderX, renderY);
             case HEAD_LEFT -> gc.drawImage(SpriteHandler.getInstance().explodeHeadLeft[id].getImage(), renderX, renderY);
         }
+    }
+
+    public Bomber getBomber() {
+        return bomber;
     }
 }

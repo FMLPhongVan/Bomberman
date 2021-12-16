@@ -7,6 +7,7 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 import java.io.IOException;
 
@@ -21,15 +22,21 @@ public class Bomberman extends Application {
                 PaneController.DEFAULT_APP_WIDTH * PaneController.DEFAULT_APP_SCALE_SIZE,
                 PaneController.DEFAULT_APP_HEIGHT * PaneController.DEFAULT_APP_SCALE_SIZE);
 
+        System.out.println(Screen.getPrimary().getBounds().getHeight());
+
         Logger.log(Logger.INFO, "Bomberman", "Starting game");
 
         Bomberman.stage.setOnCloseRequest(e -> {
             System.exit(0);
         });
 
+        Logger.log(Logger.INFO, "Bomberman", "Current size of Game is : " + stage.getWidth() + "x" + stage.getHeight());
+
+        Bomberman.stage.initStyle(StageStyle.TRANSPARENT);
         Bomberman.stage.setResizable(false);
         Bomberman.stage.setTitle("Super Bomberman");
         Bomberman.stage.setScene(scene);
+        Bomberman.stage.sizeToScene();
         Bomberman.stage.show();
     }
 

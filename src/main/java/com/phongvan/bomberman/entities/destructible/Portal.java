@@ -16,13 +16,12 @@ public class Portal extends AnimatedEntities {
     @Override
     public void update() {
         int tileSize = MapHandler.getInstance().getTileSize();
-        int tileX = (int) (Core.getInstance().getPlayer().getX() / tileSize);
-        int tileY = (int) (Core.getInstance().getPlayer().getY() / tileSize);
+        int tileX = (int) ((Core.getInstance().getPlayer().getX() + tileSize / 2) / tileSize);
+        int tileY = (int) ((Core.getInstance().getPlayer().getY() + tileSize / 2) / tileSize);
 
         if (tileX == (int) (x / tileSize) && tileY == (int) (y / tileSize)) {
             if (Core.getInstance().killAllEnemies()) {
-                Core.getInstance().loadNewStage(Core.getInstance().getLevel() + 1);
-                System.out.println(1);
+                Core.getInstance().levelComplete();
             }
         }
     }

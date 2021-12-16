@@ -2,15 +2,13 @@ package com.phongvan.bomberman.entities.destructible;
 
 import com.phongvan.bomberman.Camera;
 import com.phongvan.bomberman.Core;
+import com.phongvan.bomberman.SoundHandler;
 import com.phongvan.bomberman.entities.AnimatedEntities;
 import com.phongvan.bomberman.entities.indestructible.Grass;
-import com.phongvan.bomberman.graphics.Sprite;
 import com.phongvan.bomberman.graphics.SpriteHandler;
 import com.phongvan.bomberman.gui.PaneController;
 import com.phongvan.bomberman.map.MapHandler;
 import javafx.scene.canvas.GraphicsContext;
-
-import java.util.Map;
 
 public class Brick extends AnimatedEntities {
     public Brick(int x, int y) {
