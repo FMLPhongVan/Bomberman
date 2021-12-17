@@ -31,7 +31,7 @@ public class Bomber extends Mob {
     private BomberAI bomberAI;
 
     public static final int DEFAULT_LIVES = 3;
-    public static final int DEFAULT_BOMBS = 1;
+    public static final int DEFAULT_BOMBS = 2;
     public static final int DEFAULT_UP_LEFT_CORNER = 0;
     public static final int DEFAULT_UP_RIGHT_CORNER = 1;
     public static final int DEFAULT_DOWN_RIGHT_CORNER = 2;
@@ -308,58 +308,6 @@ public class Bomber extends Mob {
         }
     }
 
-    public void setDetonator(boolean state) {
-        detonator = state;
-    }
-
-    public void setLives(int lives) {
-        this.lives = lives;
-    }
-
-    public void setBombs(int bombs) {
-        this.bombs = bombs;
-    }
-
-    public int getScores() {
-        return scores;
-    }
-
-    public int getLives() {
-        return lives;
-    }
-
-    public int getBombs() {
-        return bombs;
-    }
-
-    public void increaseBombs() {
-        ++bombs;
-    }
-
-    public void increaseLives() {
-        ++lives;
-    }
-
-    public void setPlantBomb(boolean state) {
-        plantBomb = state;
-    }
-
-    public boolean isStepOnBomb() {
-        return isStepOnBomb;
-    }
-
-    public void setFlames(int flames) {
-        this.flames = flames;
-    }
-
-    public int getFlames() {
-        return flames;
-    }
-
-    public void addScore(int point) {
-        scores += point;
-    }
-
     public void resetToDefaultPosition(final int CORNER) {
         plantedBomb.clear();
         velX = velY = 0;
@@ -408,6 +356,58 @@ public class Bomber extends Mob {
         preScores = scores;
         preFlames = flames;
         preBombs = bombs;
+    }
+
+    public void setDetonator(boolean state) {
+        detonator = state;
+    }
+
+    public int getScores() {
+        return scores;
+    }
+
+    public int getLives() {
+        return lives;
+    }
+
+    public void setLives(int lives) {
+        this.lives = lives;
+    }
+
+    public int getBombs() {
+        return bombs;
+    }
+
+    public void setBombs(int bombs) {
+        this.bombs = bombs;
+    }
+
+    public void increaseBombs() {
+        ++bombs;
+    }
+
+    public void increaseLives() {
+        ++lives;
+    }
+
+    public void setPlantBomb(boolean state) {
+        plantBomb = state;
+    }
+
+    public boolean isStepOnBomb() {
+        return isStepOnBomb;
+    }
+
+    public int getFlames() {
+        return flames;
+    }
+
+    public void setFlames(int flames) {
+        this.flames = flames;
+    }
+
+    public void addScore(int point) {
+        scores += point;
     }
 
     public int getPreScores() {

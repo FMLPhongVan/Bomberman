@@ -45,7 +45,7 @@ public class Pass extends Mob {
                     move(false);
                 }
             } else {
-                if (x % tileSize == 0 && y % tileSize == 0 && rand.nextInt(10) < 1) {
+                if (x % tileSize == 0 && y % tileSize == 0 && rand.nextInt(10) < 2) {
                     chasingTime = DEFAULT_CHASE_TIME;
                 } else {
                     makeRandomMove();

@@ -24,12 +24,11 @@ public class MenuController implements Initializable {
     private static MenuController instance;
     public ListView<String> storyModeHighScoreList;
     public ListView<String> battleModeHighScoreList;
+
     @FXML
     private Slider volumeSlider;
-
     @FXML
     private ImageView background;
-
     @FXML
     private AnchorPane optionPane;
 
@@ -43,7 +42,7 @@ public class MenuController implements Initializable {
     private AnchorPane menuPane;
 
     @FXML
-    public ChoiceBox<String> choiceBox;
+    private ChoiceBox<String> choiceBox;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -78,10 +77,6 @@ public class MenuController implements Initializable {
         });
 
         openPane(selectPane);
-    }
-
-    public static MenuController getInstance() {
-        return instance;
     }
 
     public void resizePane() {
@@ -143,5 +138,9 @@ public class MenuController implements Initializable {
 
     public Slider getVolumeSlider() {
         return volumeSlider;
+    }
+
+    public static MenuController getInstance() {
+        return instance;
     }
 }

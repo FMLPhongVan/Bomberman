@@ -49,58 +49,16 @@ public class Core {
         Camera.getInstance().setCameraProperty();
     }
 
+    public void initGC(GraphicsContext gc) {
+        this.gc = gc;
+    }
+
     public static Core getInstance() {
         if (instance == null) {
             instance = new Core();
         }
 
         return instance;
-    }
-
-    public void initGC(GraphicsContext gc) {
-        this.gc = gc;
-    }
-
-    public void initGameBoard(final int GAME_MODE) {
-        mode = GAME_MODE;
-        player = null;
-        bomberEnemies.clear();
-        enemies.clear();
-        powerUps.clear();
-        levelPass = false;
-
-        int tileSize = MapHandler.getInstance().getTileSize();
-        switch (mode) {
-            case STORY_MODE -> {
-                level = 9;
-                timePerLevel = DEFAULT_TIME_PER_LEVEL;
-                player = new Bomber(1 * tileSize, 1 * tileSize, null);
-                MapHandler.getInstance().loadMap(level);
-            }
-            case BATTLE_MODE -> {
-                timePerLevel = DEFAULT_TIME_PER_LEVEL;
-                player = new Bomber(1 * tileSize, 1 * tileSize, null);
-                for (int i = 0; i < 3; ++i) {
-                    bomberEnemies.add(new Bomber(1 * tileSize, 1 * tileSize, null));
-                }
-
-                bomberEnemies.get(0).resetToDefaultPosition(Bomber.DEFAULT_UP_RIGHT_CORNER);
-                bomberEnemies.get(1).resetToDefaultPosition(Bomber.DEFAULT_DOWN_LEFT_CORNER);
-                bomberEnemies.get(2).resetToDefaultPosition(Bomber.DEFAULT_DOWN_RIGHT_CORNER);
-
-                MapHandler.getInstance().loadMap(0);
-            }
-        }
-
-        tiles = new Entities[MapHandler.getInstance().getRows()][MapHandler.getInstance().getCols()];
-        MapHandler.getInstance().processNewBoard();
-        SoundHandler.getInstance().reset();
-        InGameController.getInstance().getLevelLabel().setText("Level " + level);
-        InGameController.getInstance().getTimeLabel().setText("" + timePerLevel / 60);
-        InGameController.getInstance().getBombLabel().setText("" + player.getBombs());
-
-        player.AI().initAI();
-        player.AI().start();
     }
 
     public void startLevel() {
@@ -122,7 +80,6 @@ public class Core {
     public void start() {
         running = true;
         pause = false;
-        //newGame();
         loop();
     }
 
@@ -213,8 +170,6 @@ public class Core {
         }
         ControlHandler.getInstance().handleInput();
 
-
-        //System.out.println(System.currentTimeMillis() - lo);
         if (!auto) {
             player.update(0);
         } else {
@@ -312,11 +267,113 @@ public class Core {
         }
     }
 
+    public void initGameBoard(final int GAME_MODE) {
+        mode = GAME_MODE;
+        player = null;
+        bomberEnemies.clear();
+        enemies.clear();
+        powerUps.clear();
+        levelPass = false;
+
+        int tileSize = MapHandler.getInstance().getTileSize();
+        switch (mode) {
+            case STORY_MODE -> {
+                level = 1;
+                timePerLevel = DEFAULT_TIME_PER_LEVEL;
+                player = new Bomber(1 * tileSize, 1 * tileSize, null);
+                MapHandler.getInstance().loadMap(level);
+            }
+            case BATTLE_MODE -> {
+                timePerLevel = DEFAULT_TIME_PER_LEVEL;
+                player = new Bomber(1 * tileSize, 1 * tileSize, null);
+                for (int i = 0; i < 3; ++i) {
+                    bomberEnemies.add(new Bomber(1 * tileSize, 1 * tileSize, null));
+                }
+
+                bomberEnemies.get(0).resetToDefaultPosition(Bomber.DEFAULT_UP_RIGHT_CORNER);
+                bomberEnemies.get(1).resetToDefaultPosition(Bomber.DEFAULT_DOWN_LEFT_CORNER);
+                bomberEnemies.get(2).resetToDefaultPosition(Bomber.DEFAULT_DOWN_RIGHT_CORNER);
+
+                MapHandler.getInstance().loadMap(0);
+            }
+        }
+
+        tiles = new Entities[MapHandler.getInstance().getRows()][MapHandler.getInstance().getCols()];
+        MapHandler.getInstance().processNewBoard();
+        SoundHandler.getInstance().reset();
+        InGameController.getInstance().getLevelLabel().setText("Level " + level);
+        InGameController.getInstance().getTimeLabel().setText("" + timePerLevel / 60);
+        InGameController.getInstance().getBombLabel().setText("" + player.getBombs());
+
+        player.AI().initAI();
+        player.AI().start();
+    }
+
+    public void exitToMenu() {
+        running = false;
+        pause = false;
+        if (animationTimer != null) {
+            animationTimer.stop();
+        }
+        animationTimer = null;
+        player = null;
+        bomberEnemies.clear();
+        enemies.clear();
+        powerUps.clear();
+        tiles = null;
+        level = 1;
+        timeWait = 0;
+    }
+
+    public void levelComplete() {
+        if (!levelPass) {
+            SoundHandler.getInstance().reset();
+            SoundHandler.getInstance().addMedia(SoundHandler.STAGE_LEVEL_COMPLETE, false );
+            levelPass = true;
+            player.saveBomberIndicator();
+            timeWait = 240;
+        }
+    }
+
+    public void setPause(boolean state) {
+        pause = state;
+
+        if (pause) {
+            animationTimer.stop();
+            animationTimer = null;
+        }
+
+        SoundHandler.getInstance().pause();
+        ControlHandler.getInstance().reset();
+    }
+
+    public void checkHighScore(int scores) {
+        animationTimer.stop();
+        animationTimer = null;
+        if (!HighScoreManager.getInstance().aNewHighScore(scores)) {
+            InGameController.getInstance().openGameOverPane();
+        } else {
+            InGameController.getInstance().openHighScorePane();
+        }
+    }
+
+    public void checkCollideBomber(Mob enemy) {
+        int tileSize = MapHandler.getInstance().getTileSize();
+        if ((int) (enemy.getX() + tileSize / 2) / tileSize == (int) (player.getX() + tileSize / 2) / tileSize
+                && (int) (enemy.getY() + tileSize / 2) / tileSize == (int) (player.getY() + tileSize / 2) / tileSize) {
+            player.kill();
+        }
+    }
+
+    public void toggleAIMode() {
+        auto = !auto;
+    }
+
     public void checkExplosionCollision(Explosion explosion) {
         int tileSize = MapHandler.getInstance().getTileSize();
         if ((int) ((player.getX() + tileSize / 2) / tileSize) == (int) (explosion.getX() / tileSize)
                 && (int) ((player.getY() + tileSize / 2) / tileSize) == (int) (explosion.getY() / tileSize)) {
-            player.kill();
+            //player.kill();
         }
 
         if (!bomberEnemies.isEmpty()) {
@@ -344,70 +401,12 @@ public class Core {
         }
     }
 
-    public void exitToMenu() {
-        running = false;
-        pause = false;
-        if (animationTimer != null) {
-            animationTimer.stop();
-        }
-        animationTimer = null;
-        player = null;
-        bomberEnemies.clear();
-        enemies.clear();
-        powerUps.clear();
-        tiles = null;
-        level = 1;
-        timeWait = 0;
-    }
-
-    public boolean killAllEnemies() {
-        return enemies.isEmpty();
-    }
-
-    public GraphicsContext getGC() {
-        return gc;
-    }
-
-    public Entities getTile(int tileX, int tileY) {
-        return tiles[tileY][tileX];
-    }
-
-    public int getMode() {
-        return mode;
-    }
-
-    public Bomber getPlayer() {
-        return player;
-    }
-
-    public void levelComplete() {
-        if (!levelPass) {
-            SoundHandler.getInstance().reset();
-            SoundHandler.getInstance().addMedia(SoundHandler.STAGE_LEVEL_COMPLETE, false );
-            levelPass = true;
-            player.saveBomberIndicator();
-            timeWait = 240;
-        }
+    public int getLevel() {
+        return level;
     }
 
     public void setLevel(int level) {
         this.level = level;
-    }
-
-    public void setPause(boolean state) {
-        pause = state;
-
-        if (pause) {
-            animationTimer.stop();
-            animationTimer = null;
-        }
-
-        SoundHandler.getInstance().pause();
-        ControlHandler.getInstance().reset();
-    }
-
-    public int getLevel() {
-        return level;
     }
 
     public boolean getPauseState() {
@@ -430,25 +429,23 @@ public class Core {
         return animationTimer;
     }
 
-    public void checkHighScore(int scores) {
-        animationTimer.stop();
-        animationTimer = null;
-        if (!HighScoreManager.getInstance().aNewHighScore(scores)) {
-            InGameController.getInstance().openGameOverPane();
-        } else {
-            InGameController.getInstance().openHighScorePane();
-        }
+    public boolean killAllEnemies() {
+        return enemies.isEmpty();
     }
 
-    public void checkCollideBomber(Mob enemy) {
-        int tileSize = MapHandler.getInstance().getTileSize();
-        if ((int) (enemy.getX() + tileSize / 2) / tileSize == (int) (player.getX() + tileSize / 2) / tileSize
-                && (int) (enemy.getY() + tileSize / 2) / tileSize == (int) (player.getY() + tileSize / 2) / tileSize) {
-            player.kill();
-        }
+    public GraphicsContext getGC() {
+        return gc;
     }
 
-    public void toggleAIMode() {
-        auto = !auto;
+    public Entities getTile(int tileX, int tileY) {
+        return tiles[tileY][tileX];
+    }
+
+    public int getMode() {
+        return mode;
+    }
+
+    public Bomber getPlayer() {
+        return player;
     }
 }

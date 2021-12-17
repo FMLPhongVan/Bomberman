@@ -11,7 +11,6 @@ import javafx.scene.layout.AnchorPane;
 
 import java.io.IOException;
 import java.net.URL;
-import java.security.cert.PolicyNode;
 import java.util.ResourceBundle;
 
 public class PaneController implements Initializable {
@@ -38,14 +37,6 @@ public class PaneController implements Initializable {
         HighScoreManager.getInstance().loadSavedScores();
     }
 
-    public static PaneController getInstance() {
-        return instance;
-    }
-
-    public int getScaleSize() {
-        return scaleSize;
-    }
-
     public void setScaleSize(int scaleSize) {
         this.scaleSize = scaleSize;
     }
@@ -69,5 +60,13 @@ public class PaneController implements Initializable {
         root.setPrefHeight(DEFAULT_APP_HEIGHT * scaleSize);
         MenuController.getInstance().resizePane();
         InGameController.getInstance().resizePane();
+    }
+
+    public static PaneController getInstance() {
+        return instance;
+    }
+
+    public int getScaleSize() {
+        return scaleSize;
     }
 }
