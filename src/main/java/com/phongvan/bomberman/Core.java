@@ -61,6 +61,49 @@ public class Core {
         return instance;
     }
 
+
+    public void initGameBoard(final int GAME_MODE) {
+        mode = GAME_MODE;
+        player = null;
+        bomberEnemies.clear();
+        enemies.clear();
+        powerUps.clear();
+        levelPass = false;
+
+        int tileSize = MapHandler.getInstance().getTileSize();
+        switch (mode) {
+            case STORY_MODE -> {
+                level = 1;
+                timePerLevel = DEFAULT_TIME_PER_LEVEL;
+                player = new Bomber(1 * tileSize, 1 * tileSize, null);
+                MapHandler.getInstance().loadMap(level);
+            }
+            case BATTLE_MODE -> {
+                timePerLevel = DEFAULT_TIME_PER_LEVEL;
+                player = new Bomber(1 * tileSize, 1 * tileSize, null);
+                for (int i = 0; i < 3; ++i) {
+                    bomberEnemies.add(new Bomber(1 * tileSize, 1 * tileSize, null));
+                }
+
+                bomberEnemies.get(0).resetToDefaultPosition(Bomber.DEFAULT_UP_RIGHT_CORNER);
+                bomberEnemies.get(1).resetToDefaultPosition(Bomber.DEFAULT_DOWN_LEFT_CORNER);
+                bomberEnemies.get(2).resetToDefaultPosition(Bomber.DEFAULT_DOWN_RIGHT_CORNER);
+
+                MapHandler.getInstance().loadMap(0);
+            }
+        }
+
+        tiles = new Entities[MapHandler.getInstance().getRows()][MapHandler.getInstance().getCols()];
+        MapHandler.getInstance().processNewBoard();
+        SoundHandler.getInstance().reset();
+        InGameController.getInstance().getLevelLabel().setText("Level " + level);
+        InGameController.getInstance().getTimeLabel().setText("" + timePerLevel / 60);
+        InGameController.getInstance().getBombLabel().setText("" + player.getBombs());
+
+        player.AI().initAI();
+        player.AI().start();
+    }
+
     public void startLevel() {
         switch (mode) {
             case STORY_MODE -> {
@@ -265,48 +308,6 @@ public class Core {
                 SoundHandler.getInstance().addMedia(SoundHandler.EFFECT_POWER_UP, false);
             }
         }
-    }
-
-    public void initGameBoard(final int GAME_MODE) {
-        mode = GAME_MODE;
-        player = null;
-        bomberEnemies.clear();
-        enemies.clear();
-        powerUps.clear();
-        levelPass = false;
-
-        int tileSize = MapHandler.getInstance().getTileSize();
-        switch (mode) {
-            case STORY_MODE -> {
-                level = 1;
-                timePerLevel = DEFAULT_TIME_PER_LEVEL;
-                player = new Bomber(1 * tileSize, 1 * tileSize, null);
-                MapHandler.getInstance().loadMap(level);
-            }
-            case BATTLE_MODE -> {
-                timePerLevel = DEFAULT_TIME_PER_LEVEL;
-                player = new Bomber(1 * tileSize, 1 * tileSize, null);
-                for (int i = 0; i < 3; ++i) {
-                    bomberEnemies.add(new Bomber(1 * tileSize, 1 * tileSize, null));
-                }
-
-                bomberEnemies.get(0).resetToDefaultPosition(Bomber.DEFAULT_UP_RIGHT_CORNER);
-                bomberEnemies.get(1).resetToDefaultPosition(Bomber.DEFAULT_DOWN_LEFT_CORNER);
-                bomberEnemies.get(2).resetToDefaultPosition(Bomber.DEFAULT_DOWN_RIGHT_CORNER);
-
-                MapHandler.getInstance().loadMap(0);
-            }
-        }
-
-        tiles = new Entities[MapHandler.getInstance().getRows()][MapHandler.getInstance().getCols()];
-        MapHandler.getInstance().processNewBoard();
-        SoundHandler.getInstance().reset();
-        InGameController.getInstance().getLevelLabel().setText("Level " + level);
-        InGameController.getInstance().getTimeLabel().setText("" + timePerLevel / 60);
-        InGameController.getInstance().getBombLabel().setText("" + player.getBombs());
-
-        player.AI().initAI();
-        player.AI().start();
     }
 
     public void exitToMenu() {

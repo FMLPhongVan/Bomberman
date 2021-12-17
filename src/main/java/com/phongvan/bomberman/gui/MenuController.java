@@ -15,6 +15,7 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Slider;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 
 import java.net.URL;
@@ -25,24 +26,14 @@ public class MenuController implements Initializable {
     public ListView<String> storyModeHighScoreList;
     public ListView<String> battleModeHighScoreList;
 
-    @FXML
-    private Slider volumeSlider;
-    @FXML
-    private ImageView background;
-    @FXML
-    private AnchorPane optionPane;
-
-    @FXML
-    private AnchorPane highScorePane;
-
-    @FXML
-    private AnchorPane selectPane;
-
-    @FXML
-    private AnchorPane menuPane;
-
-    @FXML
-    private ChoiceBox<String> choiceBox;
+    @FXML private AnchorPane detailPane;
+    @FXML private Slider volumeSlider;
+    @FXML private ImageView background;
+    @FXML private AnchorPane optionPane;
+    @FXML private AnchorPane highScorePane;
+    @FXML private AnchorPane selectPane;
+    @FXML private AnchorPane menuPane;
+    @FXML private ChoiceBox<String> choiceBox;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -134,6 +125,10 @@ public class MenuController implements Initializable {
         PaneController.getInstance().switchPane(PaneController.IN_GAME_PANE_ID);
         InGameController.getInstance().start(Core.STORY_MODE);
         Logger.log(Logger.INFO, "MenuController", "Story Mode: new game");
+    }
+
+    public void onDetailClicked() {
+        openPane(detailPane);
     }
 
     public Slider getVolumeSlider() {
